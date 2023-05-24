@@ -1,0 +1,2 @@
+# gstat
+interpolation points (variogram)
