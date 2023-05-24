@@ -1,0 +1,38 @@
+# gstat
+interpolation points (variogram)
+library(gstat)  
+library(sp)
+TheData <- read_excel("PH.xls")
+plot(TheData$pH)
+# load the sp library
+library(sp)
+library(ggplot2)
+
+# remove any null data rows
+TheData=na.omit(TheData)
+
+
+# convert simple data frame into a spatial data frame object
+coordinates(TheData)= ~ CX+CY
+
+
+# create a bubble plot with the random values
+bubble(TheData, zcol='pH', fill=TRUE, do.sqrt=FALSE, maxsize=5)
+TheVariogram=variogram(pH~1, data=TheData)
+plot(TheVariogram)
+TheVariogramModel <- vgm(psill=3000, model="Gau", nugget=0.01, range=5000)
+plot(TheVariogram, model=TheVariogramModel) 
+FittedModel <- fit.variogram(TheVariogram, model=TheVariogramModel)    
+plot(TheVariogram, model=FittedModel)
+
+
+TheVariogram=variogram(pH~1, data=TheData)
+plot(TheVariogram)
+TheVariogramModel <- vgm(psill=3000, model="Gau", nugget=0.01, range=5000)
+FittedModel <- fit.variogram(TheVariogram, model=TheVariogramModel)
+plot(TheVariogram, model=FittedModel, main = "Variogramme directionnel de pH de P1")
+summary(TheData)
+# Create directional variograms at 0, 45, 90, 135 degrees from north (y-axis)
+TheGStat <- gstat(id="Sine", formula=pH ~ 1, data=TheData)
+TheVariogram=variogram(TheGStat, map=TRUE, cutoff=5000, width=5)
+plot(TheVariogram, threshold=7, main = "Variogramme surfacique de pH de P1")
